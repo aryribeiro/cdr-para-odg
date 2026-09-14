@@ -425,8 +425,22 @@ def _cm(value):
 
 def odg_report(odg_path: Path):
     """Devolve páginas, tamanho da página em cm e a contagem de formas,
-    textos e imagens do ODG entregue."""
+    textos e imagens do ODG entregue. Confere antes o mimetype interno."""
     with zipfile.ZipFile(odg_path) as z:
+        # O `--convert-to odg:draw8` NÃO garante um desenho na saída: quando o
+        # LibreOffice fareja o conteúdo e carrega o arquivo como apresentação,
+        # ele grava um ODP com extensão .odg. O log do soffice denuncia isso
+        # ("as a Impress document") e já é conferido, mas depende da redação da
+        # mensagem, que muda entre versões. O mimetype de dentro do ZIP é a
+        # prova que não depende de texto nenhum.
+        try:
+            mime = z.read("mimetype").decode("ascii", "replace").strip()
+        except KeyError:
+            mime = ""
+        if mime != TARGET_MIME:
+            st.error("❌ Este arquivo não é um desenho do CorelDRAW: o LibreOffice "
+                     "o interpretou como outro tipo de documento.")
+            raise ConversionError(f"mimetype {mime or 'ausente'}")
         content = safe_fromstring(z.read("content.xml"))
         try:
             styles = safe_fromstring(z.read("styles.xml"))

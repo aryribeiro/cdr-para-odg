@@ -171,6 +171,23 @@ def test_correcoes_chegam_ao_arquivo_entregue():
     assert entregue != cru, "o ODG entregue é o mesmo que o LibreOffice cuspiu"
 
 
+def test_odp_disfarcado_de_odg_e_recusado(tmp_path):
+    """Medido na skill cdr-to-odg-ts: quando o LibreOffice fareja o conteúdo e
+    carrega o arquivo como apresentação, ele grava um ODP com extensão .odg
+    mesmo com `--convert-to odg:draw8`. O mimetype de dentro do ZIP é a prova
+    que não depende da redação da mensagem do soffice."""
+    fake = tmp_path / "saida.odg"
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("mimetype", "application/vnd.oasis.opendocument.presentation",
+                   compress_type=zipfile.ZIP_STORED)
+        z.writestr("content.xml", "<office:document-content "
+                   'xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"/>')
+    fake.write_bytes(buf.getvalue())
+    with pytest.raises(app.ConversionError, match="mimetype"):
+        app.odg_report(fake)
+
+
 def test_svg_renomeado_e_recusado_antes_do_libreoffice(tmp_path):
     fake = tmp_path / "logo.cdr"
     fake.write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/></svg>')
