@@ -54,7 +54,7 @@ Para provar o ambiente de deploy (Debian com os pacotes do `packages.txt`):
 docker build --load -f tests/Dockerfile.smoke -t cdr-odg-smoke . && docker run --rm cdr-odg-smoke
 ```
 
-Medido em 14/09/2026: **26 testes passam** no Windows e os mesmos 26 no contêiner Debian trixie.
+Medido em 14/09/2026: **27 testes passam** no Windows e os mesmos 27 no contêiner Debian trixie.
 
 ## ☁️ Deploy no Streamlit Cloud
 
@@ -63,6 +63,8 @@ Medido em 14/09/2026: **26 testes passam** no Windows e os mesmos 26 no contêin
 3. Em **Advanced settings**, escolha **Python 3.13** (ou 3.12). Com Python 3.14 a instalação falha: o Streamlit 1.39 exige pillow abaixo da versão 11, que não tem pacote pronto para 3.14. A versão do Python não pode ser trocada depois; é preciso apagar o app e implantar de novo.
 4. O `packages.txt` (incluído) instala o LibreOffice Draw, que já traz a libcdr, e as fontes substitutas
 5. Deploy
+
+App no ar: https://cdr-para-odg.streamlit.app/
 
 ## 📋 Estrutura
 
